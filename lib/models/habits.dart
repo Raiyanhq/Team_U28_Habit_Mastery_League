@@ -1,5 +1,6 @@
 // Trajuan Smith
-// This is the data model for ONE row from the 'habits' table.
+// This is the data model for each habit created, so
+// represensts ONE row from the 'habits' table.
 
 class Habit {
   final int? id;
