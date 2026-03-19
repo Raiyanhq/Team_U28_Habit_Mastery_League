@@ -151,4 +151,14 @@ class DatabaseHelper {
       whereArgs: [habit.id],
     );
   }
+
+  Future<int> deleteHabit(int id) async {
+    final db = await instance.database;
+
+    return await db.delete(
+      'habits',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
