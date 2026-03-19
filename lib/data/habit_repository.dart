@@ -34,4 +34,10 @@ class HabitRepository {
   Future<List<HabitLog>> fetchLogsForHabit(int habitId) async {
     return await _dbHelper.getLogsForHabit(habitId);
   }
+
+  // Returns a list of all non-archived habits
+  Future<List<Habit>> fetchActiveHabits() async {
+    final habits = await _dbHelper.getAllHabits();
+    return habits.where((habit) => !habit.isArchived).toList();
+  }
 }
