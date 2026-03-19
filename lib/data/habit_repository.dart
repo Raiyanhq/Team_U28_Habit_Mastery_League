@@ -48,7 +48,6 @@ class HabitRepository {
 
   Future<int> getCurrentStreak(int habitId) async {
     final logs = await _dbHelper.getLogsForHabit(habitId);
-
     if(logs.isEmpty) return 0;
 
     int streak = 0;
@@ -69,7 +68,28 @@ class HabitRepository {
         break;
       }
     }
-
     return streak;
+  }
+
+  // Creates a updated copy of the habit where isArchived is true.
+  // This allows soft deletion, where we can later restore the habit 
+  // if needed.
+  Future<int> archiveHabit(Habit habit) async {
+    final archivedHabit = Habit(
+      id: habit.id,
+      name: habit.name, 
+      category: habit.category, 
+      frequency: habit.frequency, 
+      difficulty: habit.difficulty,
+      reminderTime: habit.reminderTime,
+      notes: habit.notes,
+      streakShieldEnabled: habit.streakShieldEnabled,
+      milestoneGoal: habit.milestoneGoal, 
+      createdAt: habit.createdAt, 
+      updatedAt: DateTime.now().toIso8601String(),
+      isArchived: true,
+    );
+
+    return await _dbHelper.updateHabit(archivedHabit);
   }
 }
