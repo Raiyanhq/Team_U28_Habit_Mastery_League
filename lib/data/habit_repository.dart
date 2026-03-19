@@ -71,7 +71,8 @@ class HabitRepository {
     return streak;
   }
 
-  // Creates a updated copy of the habit where isArchived is true.
+  // Creates a updated copy of the habit where isArchived is true,
+  // turning tbe habit inactive.
   // This allows soft deletion, where we can later restore the habit 
   // if needed.
   Future<int> archiveHabit(Habit habit) async {
@@ -92,4 +93,11 @@ class HabitRepository {
 
     return await _dbHelper.updateHabit(archivedHabit);
   }
+
+  Future<int> getCompletionCount(int habitId) async {
+    final logs = await _dbHelper.getLogsForHabit(habitId);
+    return logs.where((log) => log.completed).length;
+  }
+
+  
 }
