@@ -140,4 +140,15 @@ class DatabaseHelper {
 
     return result.map((map) => HabitLog.fromMap(map)).toList();
   }
+
+  Future<int> updateHabit(Habit habit) async {
+    final db = await instance.database;
+
+    return await db.update(
+      'habits',
+      habit.toMap(),
+      where: 'id = ?',
+      whereArgs: [habit.id],
+    );
+  }
 }
