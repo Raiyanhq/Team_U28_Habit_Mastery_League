@@ -40,4 +40,36 @@ class HabitRepository {
     final habits = await _dbHelper.getAllHabits();
     return habits.where((habit) => !habit.isArchived).toList();
   }
+
+  Future<bool> isHabitCompletedOnDate(int habitId, String date) async {
+    final logs = await _dbHelper.getLogsForHabit(habitId);
+    return logs.any((log) => log.logDate == date && log.completed);
+  }
+
+  Future<int> getCurrentStreak(int habitId) async {
+    final logs = await _dbHelper.getLogsForHabit(habitId);
+
+    if(logs.isEmpty) return 0;
+
+    int streak = 0;
+    DateTime currentDate = DateTime.now();
+
+    for (var log in logs) {
+      final logDate = DateTime.parse(log.logDate);
+      final differenceInDays = currentDate.difference(logDate).inDays;
+
+      if (differenceInDays == 0 || differenceInDays == 1) {
+        if (log.completed) {
+          streak++;
+          currentDate = logDate;
+        } else {
+          break;
+        }
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
 }
