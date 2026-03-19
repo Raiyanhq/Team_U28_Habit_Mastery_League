@@ -99,5 +99,21 @@ class HabitRepository {
     return logs.where((log) => log.completed).length;
   }
 
-  
+  // Check how many of the last 7 days were completed, then
+  // return it as a fraction out of 7.
+  Future<double> getWeeklyCompletionRate(int habitId) async {
+    final logs = await _dbHelper.getLogsForHabit(habitId);
+
+    final today = DateTime.now();
+    final sevenDaysAgo = today.subtract(const Duration(days: 6));
+
+    final weeklyLogs = logs.where((log) {
+      final logDate = DateTime.parse(log.logDate);
+      return !logDate.isBefore(sevenDaysAgo) &&
+          !logDate.isAfter(today) &&
+          log.completed;
+    }).toList();
+
+    return weeklyLogs.length / 7;
+  }
 }
