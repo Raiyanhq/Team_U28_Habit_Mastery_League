@@ -1,6 +1,7 @@
 // Trajuan Smith
 // Helper class to manage our SQLite db setup and connection.
 
+import 'package:habit_mastery_league/models/habit_log.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:habit_mastery_league/models/habits.dart';
@@ -125,4 +126,18 @@ class DatabaseHelper {
     );
   }
 
+  // Returns all completion Logs for a specific Habit.
+  // Same conversion as getAllHabits.
+  Future<List<HabitLog>> getLogsForHabit(int habitId) async {
+    final db = await instance.database;
+
+    final result = await db.query(
+      'habit_logs',
+      where: 'habit_id = ?',
+      whereArgs: [habitId],
+      orderBy: 'log_date DESC',
+    );
+
+    return result.map((map) => HabitLog.fromMap(map)).toList();
+  }
 }
