@@ -99,6 +99,24 @@ class HabitRepository {
     return logs.where((log) => log.completed).length;
   }
 
+  // Returns a 7-day list of whether the habit was completed each day
+  Future<List<bool>> getLast7DaysCompletion(int habitId) async {
+    final logs = await _dbHelper.getLogsForHabit(habitId);
+    final today = DateTime.now();
+    List<bool> result = [];
+
+    for (int i = 6; i >= 0; i--) {
+      final date = today.subtract(Duration(days: i));
+      final dateString = date.toIso8601String().split('T')[0];
+      
+      final completed = logs.any(
+        (log) => log.logDate == dateString && log.completed,
+      );
+      result.add(completed);
+    }
+    return result;
+  }
+
   // Check how many of the last 7 days were completed, then
   // return it as a fraction out of 7.
   Future<double> getWeeklyCompletionRate(int habitId) async {
