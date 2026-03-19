@@ -1,3 +1,5 @@
+// Trajuan Smith
+
 import '../models/habits.dart';
 import '../models/habit_log.dart';
 import 'database_helper.dart';
