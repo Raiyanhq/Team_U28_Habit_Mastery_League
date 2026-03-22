@@ -7,12 +7,26 @@ import 'package:sqflite/sqflite.dart';
 import 'package:habit_mastery_league/models/habits.dart';
 
 class DatabaseHelper {
-
   // Ensure only a single shared helper object 'instance', exists
   // and only ONE database connection, '_database', is maintained.
   DatabaseHelper._init();
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+
+  Future<int> unmarkHabitCompleteForDate(int habitId, String date) async {
+    final db = await instance.database;
+    return await db.delete(
+      'habit_logs',
+      where: 'habit_id = ? AND log_date = ?',
+      whereArgs: [habitId, date],
+    );
+  }
+
+  Future<void> resetAllHabitData() async {
+    final db = await instance.database;
+    await db.delete('habit_logs');
+    await db.delete('habits');
+  }
 
   // If db exists return it,
   // if not, open/create it, then return it.
@@ -26,14 +40,10 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
-  // Create both the habits and habit_logs tables 
+  // Create both the habits and habit_logs tables
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE habits (
@@ -52,7 +62,7 @@ class DatabaseHelper {
       )
     ''');
 
-    // Wrap habit_id and log_date with UNIQUE to prevent duplicate 
+    // Wrap habit_id and log_date with UNIQUE to prevent duplicate
     // same-day logs.
     //
     // Also using FOREIGN KEY connect relevant habit to its log,
@@ -76,8 +86,8 @@ class DatabaseHelper {
     return await db.insert('habits', habit.toMap());
   }
 
-  // Get all rows in the habits table, then 
-  // loop through each row and convert them to 
+  // Get all rows in the habits table, then
+  // loop through each row and convert them to
   // Habit Objects, then convert all Habit Objects
   // to a List.
   Future<List<Habit>> getAllHabits() async {
@@ -87,17 +97,13 @@ class DatabaseHelper {
   }
 
   // Checks id using Where clause, then
-  // if found, 'result.first' should return 
-  // the first and only element in the list 
+  // if found, 'result.first' should return
+  // the first and only element in the list
   // stored in result. If not found return Null.
   Future<Habit?> getHabitById(int id) async {
     final db = await instance.database;
 
-    final result = await db.query(
-      'habits',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final result = await db.query('habits', where: 'id = ?', whereArgs: [id]);
 
     if (result.isNotEmpty) {
       return Habit.fromMap(result.first);
@@ -155,10 +161,6 @@ class DatabaseHelper {
   Future<int> deleteHabit(int id) async {
     final db = await instance.database;
 
-    return await db.delete(
-      'habits',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('habits', where: 'id = ?', whereArgs: [id]);
   }
 }
